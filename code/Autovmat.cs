@@ -79,7 +79,7 @@ public class Autovmat : DockWindow
 	private Dictionary<string,Material> Materials { get; set; }
 	private List<string> Textures { get; set; }
 	private Option ConvertOption { get; set; }
-	private Widget MainView { get; set; }
+	private TexturesView TexturesView { get; set; }
 	private ToolBar ToolBar { get; set; }
 
 	public Autovmat()
@@ -199,6 +199,8 @@ public class Autovmat : DockWindow
 		}
 
 		ConvertOption.Enabled = Materials.Count > 0;
+
+		TexturesView?.AddTextures( Textures );
 	}
 
 	private void AddFromDirectory( string rootPath, string directory, bool recurseDirectories )
@@ -305,25 +307,34 @@ public class Autovmat : DockWindow
 
 		DockManager.RegisterDockType( "Console", "text_snippet", null, false );
 
-		MainView = new Widget( this )
-		{
-			WindowTitle = $"Textures"
-		};
-
-		MainView.Name = "Textures";
-		MainView.SetWindowIcon( "texture" );
-		MainView.SetLayout( LayoutMode.TopToBottom );
+		/*
+		TexturesView = new TexturesView( this );
+		TexturesView.SetLayout( LayoutMode.TopToBottom );
+		*/
 
 		PropertiesView = new SettingsView( this );
 		PropertiesView.Target = CurrentSettings;
 
 		var properties = DockManager.DockProperty.HideCloseButton | DockManager.DockProperty.HideOnClose | DockManager.DockProperty.DisallowFloatWindow;
 
-		DockManager.AddDock( null, PropertiesView, DockArea.Left, properties, 0.3f );
-		DockManager.AddDock( PropertiesView, MainView, DockArea.Right, properties, 0.7f );
+		if ( TexturesView is not null )
+		{
+			DockManager.AddDock( null, PropertiesView, DockArea.Left, properties, 0.3f );
+			DockManager.AddDock( PropertiesView, TexturesView, DockArea.Right, properties, 0.7f );
+		}
+		else
+		{
+			DockManager.AddDock( null, PropertiesView, DockArea.Left, properties, 0.4f );
+		}
 
 		var console = TypeLibrary.Create( "ConsoleWidget", typeof( Widget ), new[] { this } ) as Widget;
-		DockManager.AddDock( MainView, console, DockArea.Bottom, properties, 0.25f );
+
+		if ( TexturesView is null )
+			DockManager.AddDock( PropertiesView, console, DockArea.Right, properties, 0.6f );
+		else
+			DockManager.AddDock( TexturesView, console, DockArea.Bottom, properties, 0.25f );
+
+		TexturesView?.AddTextures( Textures );
 	}
 
 	[Event.Hotload]

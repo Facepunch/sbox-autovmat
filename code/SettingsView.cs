@@ -26,7 +26,11 @@ public class SettingsView : Widget
 		Sheet = new PropertySheet( this );
 		Sheet.PropertyUpdated += () => PropertyUpdated?.Invoke();
 
-		var scroller = new ScrollArea( this ) { Canvas = Sheet };
+		var scroller = new ScrollArea( this )
+		{
+			Canvas = Sheet
+		};
+
 		Layout.Add( scroller );
 	}
 }
